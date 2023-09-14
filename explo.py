@@ -4,7 +4,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 from sklearn.linear_model import LinearRegression
 
-from helpers import correlation, correlation_unique, courbe_en_fonction, courbe_en_fonction_PolynomialFeatures
+from helpers import correlation, correlation_unique, courbe_en_fonction, courbe_en_fonction_LinearRegression, \
+    courbe_en_fonction_PolynomialFeatures
 
 pd.set_option('display.max_columns', None)
 pd.set_option('display.expand_frame_repr', False)
@@ -51,15 +52,15 @@ df_boil_time = df[["BoilTime"]]
 
 df_density = df[["Density of Wort b4 ferm", "Density of Wort after ferm"]]
 
-# courbe_en_fonction_PolynomialFeatures(df_desity_before_ferm, df_alcool)
-# courbe_en_fonction_PolynomialFeatures(df_desity_after_ferm, df_alcool)
-# courbe_en_fonction_PolynomialFeatures(df_boil_time, df_alcool, degree=3)
+courbe_en_fonction_LinearRegression(df_desity_before_ferm, df_alcool)
+courbe_en_fonction_PolynomialFeatures(df_desity_after_ferm, df_alcool, degree=2)
+courbe_en_fonction_PolynomialFeatures(df_boil_time, df_alcool, degree=3)
 print(df_density)
 # courbe_en_fonction_PolynomialFeatures(df_density, df_alcool, degree=1)
 
-# courbe_en_fonction_PolynomialFeatures(df_desity_before_ferm, df_amertume)
-# courbe_en_fonction_PolynomialFeatures(df_desity_after_ferm, df_amertume)
-# courbe_en_fonction_PolynomialFeatures(df_boil_time, df_amertume, degree=3)
-courbe_en_fonction(df_density, df_amertume)
+courbe_en_fonction_PolynomialFeatures(df_desity_before_ferm, df_amertume, degree=10)
+courbe_en_fonction_PolynomialFeatures(df_desity_after_ferm, df_amertume, degree=7)
+courbe_en_fonction_PolynomialFeatures(df_boil_time, df_amertume, degree=4)
+# courbe_en_fonction(df_density, df_amertume)
 
 # plt.show()
