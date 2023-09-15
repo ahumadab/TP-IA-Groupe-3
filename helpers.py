@@ -80,3 +80,15 @@ def courbe_en_fonction_PolynomialFeatures(df_x: DataFrame, df_y: Series, degree=
     plt.grid(True)
     plt.legend()
     plt.show()
+
+
+from sklearn.tree import DecisionTreeClassifier
+from sklearn import tree
+
+def arbre_decision(df_x: DataFrame, df_y: Series):
+
+    # TODO UTILISER RandomForest plutot que DecisionTree
+    model = DecisionTreeClassifier(max_depth=5)
+    model.fit(df_x,df_y)
+    ax = tree.plot_tree(model,
+                       feature_names=df_x.columns,class_names=df_y.name,filled=True)
