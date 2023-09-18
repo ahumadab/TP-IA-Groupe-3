@@ -93,11 +93,11 @@ def courbe_en_fonction_PolynomialFeatures(df_x: DataFrame, df_y: Series, degree=
     plt.show()
 
 
-def save_model_onnx(model, X):
+def save_model_onnx(model, X, filename):
     initial_type = [('float_input', FloatTensorType([None, X.shape[1]]))]
     onnx_model = to_onnx(model, initial_types=initial_type)
 
-    with open("IBU.onnx", "wb") as f:
+    with open(f"{filename}.onnx", "wb") as f:
         f.write(onnx_model.SerializeToString())
 
 def patrick(X: DataFrame, y_ibu, y_abv):
@@ -114,7 +114,7 @@ def patrick(X: DataFrame, y_ibu, y_abv):
     model = ort.InferenceSession("ABV.onnx")
     input_data = {"float_input": X_test_numpy}
     predictions = model.run(None, input_data)
-
+    print(predictions[0][0, :])
     X.insert(len(X.columns), "ABV", predictions[0])
 
     X_train, X_test, y_ibu_train, y_ibu_test = train_test_split(X, y_ibu, test_size=0.2, random_state=42)
@@ -141,7 +141,7 @@ def patrick(X: DataFrame, y_ibu, y_abv):
     model = ort.InferenceSession("IBU.onnx")
     input_data = {"float_input": X_test_numpy}
     predictions = model.run(None, input_data)
-    print(predictions)
+    # print(predictions)
     y_ibu_pred = predictions[0]
     # model_ibu.fit(X_train, y_ibu_train)
     # y_ibu_pred = model_ibu.predict(X_test)
@@ -174,3 +174,20 @@ def patrick(X: DataFrame, y_ibu, y_abv):
     # # Afficher le graphique
     # plt.show()
 
+
+def ABV_pred(inputs):
+    X_test_numpy = np.array([inputs], dtype=np.float32)
+    model = ort.InferenceSession("ABV.onnx")
+    input_data = {"float_input": X_test_numpy}
+    predictions = model.run(None, input_data)
+    return predictions[0][0, 0]
+
+def IBU_pred(inputs):
+    # print(inputs)
+    X_test_numpy = np.array([inputs], dtype=np.float32)
+    # print(X_test_numpy)
+    model = ort.InferenceSession("IBU.onnx")
+    input_data = {"float_input": X_test_numpy}
+    predictions = model.run(None, input_data)
+    # print(predictions[0])
+    return predictions[0][0, 0]

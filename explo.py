@@ -2,10 +2,13 @@ import pandas as pd
 from pandas import DataFrame
 import matplotlib.pyplot as plt
 import numpy as np
+from sklearn.ensemble import RandomForestRegressor
 from sklearn.linear_model import LinearRegression
+from sklearn.experimental import enable_halving_search_cv
+from sklearn.model_selection import HalvingGridSearchCV
 
 from helpers import correlation, correlation_unique, courbe_en_fonction, courbe_en_fonction_LinearRegression, \
-    courbe_en_fonction_PolynomialFeatures, patrick
+    courbe_en_fonction_PolynomialFeatures, patrick, save_model_onnx
 
 pd.set_option('display.max_columns', None)
 pd.set_option('display.expand_frame_repr', False)
@@ -24,17 +27,8 @@ df.dropna(inplace=True)
 #
 # orig_leng = len(df)
 # print(ser)
-# og_df = df[["OG"]]
-# print(og_df.describe(include='all'))
-# og_df = og_df.sort_values(by="OG", ascending=True)
-# plt.plot(range(len(og_df)), og_df, marker=",")
-# plt.xlabel("Pourcentage")
-# pourcentages = [str(i) + '%' for i in range(0, 101, 10)]
-# plt.xticks(range(0, len(df), len(df) // 10), pourcentages)
-# plt.ylabel('OG (Densité du moût avant fermentation)')
-# plt.title("Courbe triée des valeurs de OG")
-# plt.grid()
-# plt.show()
+
+
 
 df = df[df["Size(L)"] <= df["Size(L)"].quantile(0.95)]
 df = df[df["OG"] <= df["OG"].quantile(0.95)]
@@ -42,6 +36,20 @@ df = df[df["FG"] <= df["FG"].quantile(0.95)]
 df = df[df["IBU"] <= 150]  # IBU max == 150 selon wikipedia
 df = df[df["BoilSize"] <= df["BoilSize"].quantile(0.95)]
 # df = df[df["IBU"] > 5]
+
+
+# aze = "Efficiency"
+# og_df = df[[aze]]
+# print(og_df.describe(include='all'))
+# og_df = og_df.sort_values(by=aze, ascending=True)
+# plt.scatter(range(len(og_df)), og_df, marker="x")
+# plt.xlabel("Pourcentage")
+# pourcentages = [str(i) + '%' for i in range(0, 101, 10)]
+# plt.xticks(range(0, len(df), len(df) // 10), pourcentages)
+# plt.ylabel('OG (Densité du moût avant fermentation)')
+# plt.title("Courbe triée des valeurs de OG")
+# plt.grid()
+# plt.show()
 
 # new_len = len(df)
 # print(new_len / orig_leng, new_len)
@@ -97,5 +105,16 @@ X = df[["Size(L)", "Density of Wort b4 ferm", "Density of Wort after ferm", "Boi
 y_ibu = df["International Bittering Units"]
 y_abv = df["Alcohol By Volume"]
 
+def ABV_pred2(inputs):
+    model_abv = LinearRegression(positive=True)
+    model_abv.fit(X, y_abv)
+    save_model_onnx(model_abv, X, "ABV")
+    X_test_numpy = np.array([inputs], dtype=np.float32)
+    print(X_test_numpy)
+    predictions = model_abv.predict(X_test_numpy)
+    print(predictions[0])
+    return predictions[0]
 
-patrick(X, y_ibu, y_abv)
+
+
+# patrick(X, y_ibu, y_abv)
